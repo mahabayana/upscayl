@@ -195,3 +195,26 @@ yet prove NSIS installation or physical GUI behavior.
 - The next diagnostic run prints the complete closure report in the job log and
   uploads `.upshift64/evidence` even when closure fails. No architecture policy
   is relaxed without that exact evidence.
+
+### Native CI attempt 5
+
+- **Run:** `34934959414`
+- **Result:** failed at the same closure gate, with complete failure evidence
+  preserved.
+- The sole rejected file was `package:resources/elevate.exe`, an x86 helper
+  added by electron-builder when generating the NSIS target.
+- Its SHA256 was
+  `9B1FBF0C11C520AE714AF8AA9AF12CFD48503EEDECD7398D8992EE94D1B4DC37`.
+- Upscayl's existing NSIS configuration uses `perMachine: true`;
+  electron-builder requires the elevation helper for this all-users installer
+  mode. Removing it would require changing established installer behavior.
+- The closure policy therefore permits only the exact
+  `package:resources/elevate.exe` path and only when its PE machine is x86.
+  All other undeclared non-ARM64 files remain blocking.
+- The diagnostic workflow uploaded failure evidence as
+  `upscayl-windows-arm64-evidence-34934959414-1`.
+  - Artifact ID: `10382893085`
+  - Size: `57121821` bytes
+  - SHA256:
+    `EB417D6969A3A779EA72DD3218DE676DF3EBA5237DD7E45D98DDBC5BFE1C922E`
+  - Expires: `2026-09-29T06:12:20Z`

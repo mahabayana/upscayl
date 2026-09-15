@@ -102,6 +102,8 @@ foreach ($scanRoot in $scanRoots) {
 
       $isExifTool = $relativePath -match "(^|/)exiftool(?:-vendored)?(?:\.exe)?(/|$)" -or
         $file.Name -match "^exiftool(?:\(-k\))?\.exe$"
+      $isNsisElevateHelper = $scanRoot.label -eq "package" -and
+        $relativePath -eq "resources/elevate.exe"
 
       if ($machine -eq 0xAA64) {
         $policy = "native"
@@ -110,6 +112,10 @@ foreach ($scanRoot in $scanRoots) {
       elseif ($isExifTool -and $machine -in @(0x014C, 0x8664)) {
         $policy = "approved-emulation"
         $reason = "Declared ExifTool compatibility exception"
+      }
+      elseif ($isNsisElevateHelper -and $machine -eq 0x014C) {
+        $policy = "approved-emulation"
+        $reason = "Required electron-builder NSIS elevation helper"
       }
       else {
         $reason = "Undeclared non-ARM64 PE file"
@@ -183,7 +189,8 @@ $report = [ordered]@{
   packageRoot = $resolvedPackageRoot
   asarExtractRoot = if ($AsarExtractRoot) { $resolvedAsarRoot } else { $null }
   approvedExceptions = @(
-    "ExifTool may use Windows x86/x64 emulation; no other non-ARM64 PE file is allowed."
+    "ExifTool may use Windows x86/x64 emulation."
+    "The electron-builder NSIS helper at resources/elevate.exe may use Windows x86 emulation."
   )
   files = @($results | Sort-Object source, path)
   failures = @($failures)
@@ -206,6 +213,7 @@ $markdown.Add("- Result: **$(if ($report.passed) { 'PASS' } else { 'FAIL' })**")
 $markdown.Add("- Package: ``$resolvedPackageRoot``")
 $markdown.Add("- Native files inspected: $($results.Count)")
 $markdown.Add("- Approved exception: ExifTool x86/x64 under Windows emulation")
+$markdown.Add("- Approved exception: electron-builder NSIS resources/elevate.exe x86 helper")
 $markdown.Add("")
 $markdown.Add("| Source | Path | Machine | Policy | SHA256 |")
 $markdown.Add("| --- | --- | --- | --- | --- |")
