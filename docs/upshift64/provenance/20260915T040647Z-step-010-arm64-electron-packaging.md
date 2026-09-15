@@ -95,3 +95,18 @@ The generated scripts:
   replace it.
 - Commit, push, workflow dispatch, NSIS packaging, release publication, and
   physical application installation remain separately approval-gated.
+
+## CI attempt 1
+
+- **Application commit:** `d112084747d05a2156a30812daf7177efe2f6b22`
+- **Workflow run:** <https://github.com/mahabayana/upscayl/actions/runs/34930795586>
+- **Runner:** GitHub-hosted `windows-11-arm`, image
+  `windows-11-arm64/20260906.161`
+- **Result:** failed during `actions/setup-node`; no dependency installation,
+  payload download, packaging, or application execution occurred.
+- **Observed error:** `Unable to find Node version '18.20.5' for platform
+  win32 and architecture arm64.`
+- **Correction:** Pin Node `22.23.2` and explicitly request `architecture:
+  arm64`. The official `actions/node-versions` manifest lists
+  `node-22.23.2-win32-arm64.7z`; this Node release also satisfies Next,
+  electron-builder, and Sharp `0.34.2` engine constraints.
