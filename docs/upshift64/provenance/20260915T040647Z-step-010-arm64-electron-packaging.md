@@ -129,3 +129,39 @@ The generated scripts:
   now permits only that top-level framework file while continuing to reject
   any backend-local or ASAR-contained Vulkan loader. The backend still resolves
   the physical system/driver loader and does not stage one in `resources/bin`.
+
+## CI attempt 3: diagnostic ZIP pass
+
+- **Application build commit:** `3193b1c3b3c742f6118472b3ea41d95152921e87`
+- **Workflow run:** <https://github.com/mahabayana/upscayl/actions/runs/34931983687>
+- **Job:** `104261912616`
+- **Runner:** GitHub-hosted `windows-11-arm`, native Windows ARM64
+- **Result:** success
+- **Artifact:** `upscayl-windows-arm64-diagnostics-34931983687-1`
+- **Artifact ID:** `10381734387`
+- **Artifact size:** `727225325` bytes
+- **Artifact SHA256:**
+  `CBB12A227B424934568F4410DBC0D58DEF9BAD9390AAAA24D63043FBA56BA7DB`
+- **Artifact expiry:** `2026-09-29T05:25:15Z`
+- **Application ZIP:** `upscayl-2.15.0-win-arm64.zip`
+
+Every workflow gate passed:
+
+1. Node `22.23.2` loaded natively on Windows ARM64.
+2. The cross-repository Step 7 artifact downloaded.
+3. Backend hashes, AA64 PE headers, and the Microsoft runtime signature passed.
+4. Locked dependency installation completed.
+5. Sharp `0.34.2` loaded and its native module reported AA64.
+6. TypeScript, schema validation, renderer generation, Electron packaging, and
+   ZIP creation completed.
+7. `app.asar` was extracted for inspection.
+8. Recursive package closure passed.
+9. The diagnostic package and evidence uploaded successfully.
+
+The run used a bounded push trigger because this session could not invoke the
+authenticated manual dispatch endpoint. Commit `36a3292` immediately restored
+the branch workflow to `workflow_dispatch` only; no automatic build trigger
+remains.
+
+This proves the unpacked application and ZIP-first Step 10 slice. It does not
+yet prove NSIS installation or physical GUI behavior.

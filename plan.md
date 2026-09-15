@@ -324,7 +324,7 @@ Exit criteria:
 
 ### Step 10: Generate the Arm64 Electron Package
 
-**Status: implementation in progress; CI not run.**
+**Status: diagnostic Arm64 ZIP passed CI; NSIS installer pending approval.**
 
 Approval required for each proposed generated diff and packaging decision.
 
@@ -342,8 +342,8 @@ Approval required for each proposed generated diff and packaging decision.
 
 Exit criteria:
 
-- Pending: native Arm64 CI produces and verifies the unpacked application and
-  ZIP.
+- Met for the diagnostic slice: native Arm64 CI produced and verified the
+  unpacked application and architecture-labelled ZIP.
 - Pending after separate approval: add and verify the NSIS installer.
 - Application installation and physical GUI behavior remain Step 11.
 
@@ -401,8 +401,8 @@ Approval required to select any item.
 ## Current Position
 
 - Steps 1 through 9 are complete to their documented evidence boundaries.
-- Step 10 local implementation is in progress; its workflow has not been
-  committed, pushed, or dispatched.
+- Step 10's diagnostic ZIP slice passed native Arm64 CI. The NSIS installer
+  remains pending its separate approval.
 - The backend branch contains four approved CI commits ending at
   `fd72e621d143f21747fcf0522356480125075fea`.
 - A native ARM64 backend plus its signed ARM64 OpenMP runtime exists and has
@@ -410,8 +410,8 @@ Approval required to select any item.
   inference.
 - Tier 1 is complete. No Electron ARM64 package, installer, GUI test, updater
   validation, or complete application claim exists.
-- Step 10's six packaging decisions and first local implementation slice were
-  approved. CI execution, commit, push, NSIS, release publication, and device
+- Step 10's six packaging decisions and first diagnostic slice were approved,
+  committed, pushed, and proven in CI. NSIS, release publication, and device
   installation remain separately gated.
 
 ## Plan Maintenance
