@@ -62,9 +62,19 @@ jobs:
         shell: pwsh
         run: node scripts/verify-sharp-arm64.js
 
-      - name: Build unpacked application and ZIP
+      - name: Build unpacked application, ZIP, and NSIS installer
         shell: pwsh
         run: npm run dist:win-arm64
+
+      - name: Inspect NSIS installer
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist/*-win-arm64.exe
+          if ($installer.Count -ne 1) {
+            throw "Expected exactly one ARM64 NSIS installer, found $($installer.Count)."
+          }
+          ./scripts/inspect-windows-arm64-installer.ps1 `
+            -InstallerPath $installer.FullName
 
       - name: Extract application ASAR for closure inspection
         shell: pwsh
@@ -87,6 +97,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
           path: |
+            dist/*-win-arm64.exe
             dist/*-win-arm64.zip
             dist/win-arm64-unpacked/**
             .upshift64/evidence/**

@@ -93,8 +93,8 @@ foreach ($scanRoot in $scanRoots) {
 
     try {
       $machine = Get-PeMachine -Path $file.FullName
-      $machineName = if ($machineNames.ContainsKey($machine)) {
-        $machineNames[$machine]
+      $machineName = if ($machineNames.ContainsKey([int]$machine)) {
+        $machineNames[[int]$machine]
       }
       else {
         "0x$($machine.ToString('X4'))"

@@ -165,3 +165,17 @@ remains.
 
 This proves the unpacked application and ZIP-first Step 10 slice. It does not
 yet prove NSIS installation or physical GUI behavior.
+
+## Approved NSIS slice
+
+- **Owner approval:** `"ok approved"` in response to the separately proposed
+  NSIS slice.
+- Add a dedicated ARM64-only NSIS target alongside the proven ZIP target.
+- Preserve architecture-labelled `.exe` and `.zip` artifact names.
+- Inspect the NSIS executable's PE machine, hash, and signature state in a
+  separate report.
+- Classify the installer bootstrap separately from the already-proven ARM64
+  application payload. NSIS may use a Windows compatibility bootstrap even
+  though it installs only ARM64 application files.
+- Continue to defer actual installation, uninstall behavior, launch, and GUI
+  validation to physical-device Step 11.

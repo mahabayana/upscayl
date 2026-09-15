@@ -20,6 +20,10 @@ module.exports = {
     ...baseBuild.win,
     target: [
       {
+        target: "nsis",
+        arch: ["arm64"],
+      },
+      {
         target: "zip",
         arch: ["arm64"],
       },
