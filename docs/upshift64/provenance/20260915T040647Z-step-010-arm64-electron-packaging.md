@@ -218,3 +218,43 @@ yet prove NSIS installation or physical GUI behavior.
   - SHA256:
     `EB417D6969A3A779EA72DD3218DE676DF3EBA5237DD7E45D98DDBC5BFE1C922E`
   - Expires: `2026-09-29T06:12:20Z`
+
+### Native CI attempt 6
+
+- **Run:** `34936161073`
+- **Job:** `104274401797`
+- **Result:** success on native `windows-11-arm`.
+- Node/Sharp verification, backend staging, Electron build, ZIP and NSIS
+  generation, installer inspection, ASAR extraction, recursive closure, and
+  both artifact uploads passed.
+- Outputs:
+  - `upscayl-2.15.0-win-arm64.exe`
+  - `upscayl-2.15.0-win-arm64.zip`
+  - `dist/win-arm64-unpacked`
+- Installer evidence:
+  - Size: `282727113` bytes
+  - SHA256:
+    `29A4778DFB85F5F5EDF3D447F7B18BA1B794A259DDE6571E8610B3B86A258769`
+  - PE machine: `0x014C` (x86)
+  - Policy: `compatibility-bootstrap`
+  - Signature: `NotSigned` (diagnostic artifact)
+- Package closure inspected 86 native files and passed with zero failures.
+- Full diagnostic artifact:
+  - Name: `upscayl-windows-arm64-diagnostics-34936161073-1`
+  - Artifact ID: `10384470075`
+  - Size: `1010069274` bytes
+  - SHA256:
+    `8D0E4FE6ED6386B6ED60D04AE1234C976EC3D91CE3295829101CE331DD5ECF39`
+  - Expires: `2026-09-29T06:26:47Z`
+- Evidence-only artifact:
+  - Name: `upscayl-windows-arm64-evidence-34936161073-1`
+  - Artifact ID: `10382809762`
+  - Size: `57121824` bytes
+  - SHA256:
+    `38626521812F8671E06A5260D84E16637836A9B8868BCCE9219B5B6A08533841`
+  - Expires: `2026-09-29T06:26:21Z`
+
+Commit `0e825b6` restored the branch workflow to `workflow_dispatch` only after
+the bounded trigger. Step 10 is complete to the package-generation and static
+closure boundary. Installation, launch, GUI behavior, uninstall, updater, and
+code-signing validation remain Step 11 or later work.

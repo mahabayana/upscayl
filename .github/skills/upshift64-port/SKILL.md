@@ -19,8 +19,10 @@ manual application of pinned EasyWoS methodology, direct build-graph
 inspection, local toolchain inventory, and binary inspection. The optional
 native-Windows EasyWoS setup was proven only through dependency installation
 and core imports; it stopped because `python-magic` could not load `libmagic`.
-The scanner, report generation, implementation, Arm64 build, packaging,
-inference, and device-validation procedures are not proven.
+The scanner remains unproven. Native backend build, binary closure, physical
+offline inference, and Electron ARM64 ZIP/NSIS packaging are proven to their
+documented boundaries. Installed-application, GUI, updater, and release
+procedures are not proven.
 
 Never present methodology use as scanner execution, the x64 baseline as Arm64
 evidence, an installed toolchain as a successful build, or a proposed
@@ -653,6 +655,44 @@ The approved evidence hashes are:
 | `to_upscale-upscayl-standard-4x.png` | `DCC617E967905E61F987374A7F692407EE2C4CE90484F1509ABFBFB1597F2404` |
 | `metadata.json` | `05D548E006ED9245F5659C431F1F085BA0407226454AEA7DC025C1B0157D7BF1` |
 
+## Step 10: Electron Windows ARM64 packaging
+
+Keep ARM64 packaging isolated from existing platform targets. A proven
+application-packaging workflow:
+
+1. runs natively on `windows-11-arm` with an explicitly available ARM64 Node
+   distribution;
+2. downloads a pinned backend artifact using narrowly scoped Actions-read
+   credentials and stages it outside source control;
+3. verifies backend/runtime hashes, PE machines, and vendor signatures before
+   packaging;
+4. pins a Sharp version that publishes Windows ARM64 binaries and verifies that
+   the loaded `.node` module is AA64;
+5. passes explicit ARM64 targets and `--publish never` to electron-builder;
+6. produces architecture-labelled unpacked, ZIP, and NSIS outputs;
+7. extracts `app.asar` and recursively inspects every `.exe`, `.dll`, and
+   `.node`;
+8. verifies required models and exact backend/runtime hashes; and
+9. uploads reports with `if: always()` so a blocking closure failure remains
+   diagnosable.
+
+Classify the installer bootstrap separately from installed application
+closure. In the proven Upshift64 configuration, the all-users NSIS installer
+has an x86 compatibility bootstrap and electron-builder adds the required x86
+`resources/elevate.exe`. Permit that helper only at that exact path and only as
+x86. ExifTool remains the separate declared x86/x64 emulation exception. All
+other application/runtime native files must be ARM64; reject unexpected
+ARM64EC, x86/x64 files, debug runtimes, and backend-local Vulkan loaders.
+
+CI run `34936161073` produced and verified
+`upscayl-2.15.0-win-arm64.exe`, `upscayl-2.15.0-win-arm64.zip`, and the unpacked
+application. The package closure inspected 86 native files with zero failures.
+The unsigned diagnostic NSIS executable had x86 PE machine `0x014C`, SHA256
+`29A4778DFB85F5F5EDF3D447F7B18BA1B794A259DDE6571E8610B3B86A258769`,
+and was classified as a compatibility bootstrap. This proves package creation
+and static closure, not installation, launch, GUI behavior, uninstallation,
+updating, signing readiness, or physical-device performance.
+
 ## Provenance requirements
 
 Follow `docs/upshift64/provenance/README.md`. Record the approval before acting
@@ -678,9 +718,9 @@ an unverified artifact.
 
 ## Roadmap
 
-Steps 3 through 8 now have procedures proven to their accurately stated
+Steps 3 through 10 now have procedures proven to their accurately stated
 boundaries: reproducible checkout, unchanged x64 reference, read-only audit,
-native ARM64 CI, binary closure, and physical offline Vulkan inference. The
-Electron ARM64 packaging, installed application validation, updater behavior,
-and release process remain unproven and must be added only after separate
-approval and captured execution evidence.
+native ARM64 CI, binary closure, physical offline Vulkan inference, and
+Electron ARM64 ZIP/NSIS packaging. Installed application validation, updater
+behavior, and the release process remain unproven and must be added only after
+separate approval and captured execution evidence.

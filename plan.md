@@ -324,7 +324,7 @@ Exit criteria:
 
 ### Step 10: Generate the Arm64 Electron Package
 
-**Status: diagnostic Arm64 ZIP passed CI; NSIS installer pending approval.**
+**Status: complete to the packaged-artifact boundary.**
 
 Approval required for each proposed generated diff and packaging decision.
 
@@ -338,13 +338,17 @@ Approval required for each proposed generated diff and packaging decision.
   exception if package inspection confirms it is not Arm64.
 - Added blocking recursive PE inspection for packaged EXE, DLL, and native
   Node module files.
-- Deferred NSIS until the unpacked application and ZIP pass CI inspection.
+- Deferred NSIS until the unpacked application and ZIP passed CI inspection,
+  then added the separately approved ARM64-only NSIS target.
+- Preserved the existing all-users installer behavior. The NSIS executable and
+  its required `resources/elevate.exe` helper use Windows x86 compatibility;
+  the installed Electron application and backend closure remain ARM64 apart
+  from the declared ExifTool exception.
 
 Exit criteria:
 
-- Met for the diagnostic slice: native Arm64 CI produced and verified the
-  unpacked application and architecture-labelled ZIP.
-- Pending after separate approval: add and verify the NSIS installer.
+- Met: native Arm64 CI produced and verified the unpacked application,
+  architecture-labelled ZIP, and NSIS installer.
 - Application installation and physical GUI behavior remain Step 11.
 
 ### Step 11: Validate the Full Application on Snapdragon X
@@ -401,18 +405,19 @@ Approval required to select any item.
 ## Current Position
 
 - Steps 1 through 9 are complete to their documented evidence boundaries.
-- Step 10's diagnostic ZIP slice passed native Arm64 CI. The NSIS installer
-  remains pending its separate approval.
+- Step 10 passed native Arm64 CI for the unpacked application,
+  architecture-labelled ZIP, and NSIS installer.
 - The backend branch contains four approved CI commits ending at
   `fd72e621d143f21747fcf0522356480125075fea`.
 - A native ARM64 backend plus its signed ARM64 OpenMP runtime exists and has
   passed CI architecture/dependency closure and physical offline Adreno Vulkan
   inference.
-- Tier 1 is complete. No Electron ARM64 package, installer, GUI test, updater
-  validation, or complete application claim exists.
-- Step 10's six packaging decisions and first diagnostic slice were approved,
-  committed, pushed, and proven in CI. NSIS, release publication, and device
-  installation remain separately gated.
+- Tier 1 and Step 10 are complete to their documented boundaries. No installed
+  GUI test, updater validation, release publication, or complete application
+  claim exists.
+- Step 10's packaging decisions and NSIS slice were approved, committed,
+  pushed, and proven in CI. Release publication and device installation remain
+  separately gated.
 
 ## Plan Maintenance
 

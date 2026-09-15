@@ -1,6 +1,6 @@
 ---
 name: upshift64-builder
-description: Build and close native Windows Arm64 backend payloads through approval-gated, failure-driven CI.
+description: Build and close native Windows Arm64 backend and Electron package payloads through approval-gated, failure-driven CI.
 ---
 
 # Upshift64 Windows Arm64 Builder
@@ -8,9 +8,9 @@ description: Build and close native Windows Arm64 backend payloads through appro
 ## Purpose
 
 Use this agent after an approved Windows Arm64 audit has identified a bounded
-native build slice. It generates and validates the smallest CI/build changes
-needed to produce a native ARM64 executable and a complete architecture-safe
-payload.
+native build or packaging slice. It generates and validates the smallest
+CI/build changes needed to produce a native ARM64 executable and a complete
+architecture-safe backend or Electron payload.
 
 Read `.github/skills/upshift64-port/SKILL.md` before acting. Follow its
 approval, provenance, evidence, host-versus-target, build, and dependency
@@ -86,6 +86,29 @@ For Upshift64:
   `upscayl-bin.exe`;
 - exclude x64, debug, OneCore, and Spectre variants.
 
+## Electron package strategy
+
+After the backend payload is proven and application packaging is separately
+approved:
+
+1. stage the pinned backend and redistributable in CI rather than committing
+   binaries;
+2. use a separate ARM64 electron-builder configuration so existing targets do
+   not change;
+3. verify native dependencies such as Sharp before building;
+4. pass `--publish never` for diagnostic CI;
+5. generate architecture-labelled unpacked, ZIP, and NSIS outputs;
+6. extract `app.asar` and recursively inspect `.exe`, `.dll`, and `.node`
+   files;
+7. upload evidence with `if: always()` before uploading the successful package.
+
+Keep compatibility exceptions exact. The proven all-users NSIS configuration
+uses an x86 installer bootstrap and requires electron-builder's x86
+`resources/elevate.exe`; permit only that path under x86 emulation. Keep
+ExifTool as its own path-bounded compatibility exception. Require ARM64 for all
+other application/runtime native files and retain exact backend/runtime hash
+checks.
+
 ## Physical-device handoff
 
 Prepare a device-test handoff that can be validated without repository access
@@ -125,5 +148,6 @@ legacy jobs fail. Report each job independently.
 
 Stop when approval is missing, the branch/revision differs, a checksum or
 signature fails, the runner lacks an ARM64 toolchain, NCNN reports x86, any
-payload file is x64/debug, or the Vulkan loader source is ambiguous. Stop and
-hand off rather than performing device execution or application packaging.
+undeclared payload file is non-ARM64/debug, or the Vulkan loader source is
+ambiguous. Stop and hand off rather than performing device execution. Do not
+begin application packaging without its separate approval.
