@@ -19,6 +19,7 @@ out/
 /dist/
 /export/electron
 /export/common
+/.upshift64/
 
 # misc
 .DS_Store

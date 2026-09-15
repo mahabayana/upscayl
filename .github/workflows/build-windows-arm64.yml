@@ -1,0 +1,154 @@
+name: Build for Windows ARM64
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend_payload_url:
+        description: Public HTTPS URL for a ZIP containing upscayl-bin.exe and vcomp140.dll
+        required: true
+        type: string
+      backend_payload_sha256:
+        description: SHA256 of the backend payload ZIP
+        required: true
+        type: string
+      backend_sha256:
+        description: SHA256 of upscayl-bin.exe inside the payload
+        required: true
+        type: string
+      openmp_sha256:
+        description: SHA256 of vcomp140.dll inside the payload
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  windows-arm64:
+    runs-on: windows-11-arm
+    timeout-minutes: 45
+    env:
+      BACKEND_SHA256: ${{ inputs.backend_sha256 }}
+      OPENMP_SHA256: ${{ inputs.openmp_sha256 }}
+      UPSHIFT64_ARM64_PAYLOAD_DIR: .upshift64/staging/win-arm64/bin
+
+    steps:
+      - name: Check out application
+        uses: actions/checkout@v4
+
+      - name: Set up pinned Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.2
+          architecture: arm64
+          cache: npm
+
+      - name: Download verified public ARM64 backend payload
+        shell: pwsh
+        env:
+          BACKEND_PAYLOAD_URL: ${{ inputs.backend_payload_url }}
+          BACKEND_PAYLOAD_SHA256: ${{ inputs.backend_payload_sha256 }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          if ($env:BACKEND_PAYLOAD_URL -notmatch "^https://") {
+            throw "backend_payload_url must use HTTPS."
+          }
+          foreach ($value in @(
+            $env:BACKEND_PAYLOAD_SHA256,
+            $env:BACKEND_SHA256,
+            $env:OPENMP_SHA256
+          )) {
+            if ($value -notmatch "^[0-9A-Fa-f]{64}$") {
+              throw "Every supplied SHA256 must contain exactly 64 hexadecimal characters."
+            }
+          }
+          New-Item -ItemType Directory -Force .upshift64/input | Out-Null
+          Invoke-WebRequest `
+            -Uri $env:BACKEND_PAYLOAD_URL `
+            -OutFile .upshift64/input/backend.zip
+          $actualHash = (
+            Get-FileHash .upshift64/input/backend.zip -Algorithm SHA256
+          ).Hash
+          if ($actualHash -ne $env:BACKEND_PAYLOAD_SHA256) {
+            throw "Backend payload SHA256 mismatch."
+          }
+          Expand-Archive `
+            -LiteralPath .upshift64/input/backend.zip `
+            -DestinationPath .upshift64/input/backend
+
+      - name: Verify and stage native payload
+        shell: pwsh
+        run: |
+          ./scripts/stage-windows-arm64-payload.ps1 `
+            -PayloadRoot .upshift64/input/backend `
+            -StagingRoot $env:UPSHIFT64_ARM64_PAYLOAD_DIR `
+            -BackendSha256 $env:BACKEND_SHA256 `
+            -OpenMpSha256 $env:OPENMP_SHA256
+
+      - name: Install locked dependencies
+        shell: pwsh
+        env:
+          SHARP_IGNORE_GLOBAL_LIBVIPS: "1"
+        run: npm ci --include=optional
+
+      - name: Verify native ARM64 Sharp
+        shell: pwsh
+        run: node scripts/verify-sharp-arm64.js
+
+      - name: Build unpacked application, ZIP, and NSIS installer
+        shell: pwsh
+        run: npm run dist:win-arm64
+
+      - name: Inspect NSIS installer
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist/*-win-arm64.exe
+          if ($installer.Count -ne 1) {
+            throw "Expected exactly one ARM64 NSIS installer, found $($installer.Count)."
+          }
+          ./scripts/inspect-windows-arm64-installer.ps1 `
+            -InstallerPath $installer.FullName
+
+      - name: Extract application ASAR for closure inspection
+        shell: pwsh
+        run: |
+          node node_modules/@electron/asar/bin/asar.js extract `
+            dist/win-arm64-unpacked/resources/app.asar `
+            .upshift64/evidence/app-asar
+
+      - name: Verify complete ARM64 package closure
+        shell: pwsh
+        run: |
+          try {
+            ./scripts/verify-windows-arm64-package.ps1 `
+              -PackageRoot dist/win-arm64-unpacked `
+              -AsarExtractRoot .upshift64/evidence/app-asar `
+              -BackendSha256 $env:BACKEND_SHA256 `
+              -OpenMpSha256 $env:OPENMP_SHA256
+          }
+          finally {
+            if (Test-Path .upshift64/evidence/package-closure/package-closure.md) {
+              Get-Content .upshift64/evidence/package-closure/package-closure.md
+            }
+          }
+
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upscayl-windows-arm64-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: .upshift64/evidence/**
+
+      - name: Upload diagnostic package and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: upscayl-windows-arm64-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            dist/*-win-arm64.exe
+            dist/*-win-arm64.zip
+            dist/win-arm64-unpacked/**
+            .upshift64/evidence/**
