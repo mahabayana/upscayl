@@ -1,0 +1,119 @@
+{
+  "$schema": "./project-config.schema.json",
+  "schemaVersion": 1,
+  "project": {
+    "id": "upshift64-upscayl",
+    "displayName": "Upscayl Windows ARM64"
+  },
+  "repositories": {
+    "application": {
+      "url": "https://github.com/mahabayana/upscayl.git",
+      "branch": "hackathon/upshift64-win-arm64",
+      "revision": "6855a2b7acb0f7e11f04c1851142e85d7471908f"
+    },
+    "backend": {
+      "url": "https://github.com/mahabayana/upscayl-ncnn.git",
+      "branch": "hackathon/upshift64-win-arm64",
+      "revision": "fd72e621d143f21747fcf0522356480125075fea",
+      "submodules": [
+        {
+          "path": "third_party/libwebp",
+          "revision": "8ea81561d2fdd382da60f57958741a7c23a18eb6"
+        },
+        {
+          "path": "third_party/ncnn",
+          "revision": "6125c9f47cd14b589de0521350668cf9d3d37e3c"
+        }
+      ]
+    }
+  },
+  "target": {
+    "os": "windows",
+    "architecture": "arm64",
+    "compatibilityArchitectures": [
+      "x64",
+      "x86"
+    ]
+  },
+  "build": {
+    "runner": "windows-11-arm",
+    "configuration": "Release",
+    "toolchain": "Visual Studio 2022"
+  },
+  "artifacts": {
+    "evidenceRoot": "<absolute-evidence-root>",
+    "stagingRoot": "<absolute-staging-root>",
+    "nativeFilePolicy": {
+      "requiredArchitecture": "arm64",
+      "exceptions": [
+        {
+          "path": "resources/elevate.exe",
+          "architectures": [
+            "x86"
+          ],
+          "reason": "electron-builder elevation helper"
+        },
+        {
+          "path": "resources/app.asar.unpacked/node_modules/exiftool-vendored/**",
+          "architectures": [
+            "x64"
+          ],
+          "reason": "approved Windows emulation boundary"
+        }
+      ]
+    }
+  },
+  "validation": {
+    "fixture": {
+      "path": "to_upscale.jpeg",
+      "sha256": "8E9EB94064D1776381B7364AF571AF7953407586B8FF4267FCA3B881D671EE5C"
+    },
+    "model": {
+      "id": "upscayl-standard-4x",
+      "files": [
+        {
+          "path": "resources/models/upscayl-standard-4x.param",
+          "sha256": "35330ECECCEA33B6C397A72548E788D5D53BECEE4734C50B7FADA36E89F10A86"
+        },
+        {
+          "path": "resources/models/upscayl-standard-4x.bin",
+          "sha256": "713EE713B0353AFAA27976F0563A64A5043BD70B9BD8936C2E26E25EBCDBCDDF"
+        }
+      ]
+    },
+    "providerPolicy": {
+      "api": "vulkan",
+      "allowedIdentifiers": [
+        "DRIVER_ID_QUALCOMM_PROPRIETARY"
+      ],
+      "deniedIdentifiers": [
+        "DRIVER_ID_MESA_DOZEN"
+      ]
+    },
+    "offlineRequired": true,
+    "expectedOutput": {
+      "format": "png",
+      "width": 1024,
+      "height": 1024
+    }
+  },
+  "privacy": {
+    "publicationMode": "private",
+    "requireImageReview": true
+  },
+  "tools": {
+    "easyWoS": {
+      "required": false,
+      "versionOrRevision": "e096b5b95a25c18220be93f743a668846ef3481b"
+    },
+    "winAppCli": {
+      "required": false
+    },
+    "winDevSkills": {
+      "required": false
+    },
+    "winmlCli": {
+      "required": false
+    }
+  }
+}

@@ -17,6 +17,17 @@ provenance, evidence, and maturity rules. If that skill is absent or
 inaccessible, stop and report the limitation rather than reconstructing hidden
 requirements.
 
+## Portable project contract
+
+Before producing a final audit, require a project configuration conforming to
+`upshift64-port/references/project-config.schema.json`. If the owner supplies
+one, validate it with `Test-Upshift64ProjectConfig.ps1` and independently
+reverify repository revisions. If none exists, gather the required fields and
+propose an exact configuration as the audit's first write-gated artifact.
+
+Do not copy Upshift64 example hashes, provider IDs, compatibility exceptions,
+or paths into another project. The example demonstrates shape only.
+
 ## Read-only default
 
 Default to read-only work:
@@ -41,11 +52,13 @@ Obtain explicit owner approval before:
   custom-agent/skill files;
 - installing dependencies, cloning tools, creating environments, downloading
   SDKs, or running a scanner that writes output;
-- applying a scanner workaround, adding `libmagic`, or using Docker;
+- applying a scanner workaround, adding undeclared runtime dependencies, or
+  using a container;
 - triggering CI, publishing artifacts, opening pull requests, or writing to an
   external service;
-- selecting a dependency upgrade, OpenMP policy, Vulkan distribution strategy,
-  packaging layout, compatibility architecture, or other major decision;
+- selecting a dependency upgrade, runtime redistribution policy, accelerator
+  API boundary, packaging layout, compatibility architecture, or other major
+  decision;
 - beginning any implementation proposed by the audit.
 
 Before the gate, present exact paths, commands or decision, expected output,
@@ -88,33 +101,36 @@ fallback.
 
 Name and inspect every area explicitly:
 
-1. CMake and CI/release architecture restrictions, including `-A x64`,
-   implicit runner architecture, matrices, cache keys, packaging, and release
-   names.
-2. Visual Studio/MSVC ARM64 compiler availability, Windows SDK target
-   libraries, CMake generator/platform requirements, and GitHub
-   `windows-11-arm` runner readiness.
-3. NCNN ARM64 target detection, ARM/AArch64/NEON guards, Vulkan options,
-   shader generation, runtime CPU dispatch, and x86 fallback behavior.
-4. Vulkan target headers, target import libraries, loader/driver runtime, host
-   tools such as `glslangValidator`, generated shader data, and target-linked
-   glslang components.
-5. libwebp Windows ARM64 compilation, SIMD probes, NEON dispatch, x86-only
-   paths, and exclusion guards.
-6. WIC, COM, filesystem, Unicode paths, Windows entry points, and other
-   `_WIN32` source paths.
-7. OpenMP discovery/linking and ARM64 `vcomp` import/runtime distribution,
-   explicitly rejecting x64 and debug DLLs.
-8. Static and dynamic backend dependency closure, including direct imports,
-   transitive non-system dependencies, machine types, and loader boundaries.
-9. Backend/application artifact names, architecture-specific staging, updater
-   collisions, Electron/native helpers, and native Node modules.
+1. Source/release topology and immutable dependencies.
+2. Build-system, CI, cache, matrix, artifact, and release architecture
+   restrictions.
+3. Compiler, SDK, linker, ABI, and ARM64/ARM64EC target readiness.
+4. Processor guards, intrinsics, assembly, SIMD, dispatch, and fallback paths.
+5. Acceleration APIs, host tools, target libraries, provider enumeration,
+   driver ownership, software devices, and translation layers.
+6. Native frameworks, codecs, optional modules, generated assets, and
+   platform-specific source selection.
+7. Windows filesystem, Unicode, COM/WinRT, shell, registry, service, entry
+   point, and elevation behavior.
+8. Language, threading, framework, and vendor-runtime redistribution,
+   signatures, and debug/release identity.
+9. Static/dynamic dependency closure, PE machines, plugins, subprocesses,
+   delay loads, and system boundaries.
+10. Packaging, installation, update channels, architecture labels, signing,
+    helper binaries, and compatibility exceptions.
+11. Physical-device behavior, provider selection, offline readiness,
+    cancellation, output validity, privacy, and reproducibility.
 
-## EasyWoS truthfulness rules
+Mark a category `not applicable` only after proving it is outside the selected
+build and runtime. Treat technologies in
+`upshift64-port/references/upscayl-case-study.md` as examples, not mandatory
+audit subjects.
 
-Identify Qualcomm's official EasyWoS repository, pin the exact inspected
-commit, and cite pinned documentation/source URLs. Use one of these exact
-descriptions:
+## Portability-scanner truthfulness rules
+
+Identify the configured scanner's official source, pin the exact inspected
+version or commit, and cite pinned documentation/source URLs. Use one of these
+exact descriptions:
 
 - `methodology applied`: guidance was mapped manually to repository evidence;
 - `setup attempted`: an approved isolated environment or dependency setup was
@@ -123,7 +139,7 @@ descriptions:
   exists.
 
 These states are not interchangeable. Never describe manually discovered
-issues as EasyWoS scanner findings.
+issues as scanner findings.
 
 An optional scanner attempt must be isolated under an owner-approved root and
 must pin the source commit, Python version, requirements, venv, pip cache,
@@ -131,14 +147,8 @@ temporary paths, logs, output, evidence hashes, and cleanup boundary. Run
 dependency checks and imports before help or scanning. Stop on any failure and
 do not install alternatives without approval.
 
-For the current Upshift64 case study only, EasyWoS commit
-`e096b5b95a25c18220be93f743a668846ef3481b` was fetched into an isolated
-session root. Python 3.11.9 setup, declared dependency installation,
-`pip check`, and core imports succeeded. `python-magic` failed with
-`ImportError: failed to find libmagic.  Check your installation`; scanner help,
-source scanning, and report generation did not occur. This is not proof of
-end-to-end native Windows scanner support and is not a universal EasyWoS
-constraint.
+Case-study scanner revisions, setup results, and dependency failures belong in
+the case-study reference, not in a new project's audit assumptions.
 
 ## Evidence hierarchy
 
@@ -196,8 +206,8 @@ adopted, and a validation test.
 Return:
 
 1. an executive assessment and explicit Tier 1 feasibility judgment;
-2. an EasyWoS usage statement distinguishing methodology, setup, and scanner
-   execution;
+2. a portability-tool usage statement distinguishing methodology, setup, and
+   scanner execution;
 3. a detailed evidence matrix covering every named area, with status, exact
    evidence, impact, minimal candidate, and validation test;
 4. a host-tool versus target-binary architecture table;
@@ -211,11 +221,9 @@ Return:
 
 End the audit after proposing the smallest decisive implementation slice.
 Explain its exact files, behavior, validation, risks, alternatives, and
-rollback, then wait for owner approval. Never implement automatically.
+rollback, then wait for owner approval. Populate the skill's
+`references/handoff-template.md` for `upshift64-builder`. Never implement
+automatically.
 
-For the current Upshift64 case study only, the first slice was limited to the
-backend `.github/workflows/CI.yml` and has since completed through native build
-and dependency closure. The x64-host cross-build, diagnostic OpenMP-off build,
-and NCNN update alternatives were not selected. Any new audit must establish
-and seek approval for a new bounded slice rather than treating those historical
-alternatives as approved actions.
+Any new audit must establish and seek approval for its own bounded slice.
+Never treat a case-study remediation or rejected alternative as pre-approved.

@@ -353,33 +353,69 @@ Exit criteria:
 
 ### Step 11: Validate the Full Application on Snapdragon X
 
-Approval required before installation and device-side test execution.
+**Status: complete.**
 
-- Recursively verify the installed native binary closure.
-- Use WinAppCli where practical to exercise launch, file selection,
-  single-image upscale, cancellation, output opening, logs, and offline use.
-- Capture visible demo evidence and failure diagnostics.
+- Acquired and hash-verified the exact Step 10 CI artifact before extraction or
+  execution.
+- Installed the unsigned diagnostic NSIS package after approval.
+- Compared all 601 package-reference files with the installed tree: 601
+  matched, none were missing or changed, and the installer-generated x86
+  uninstaller was the sole added file.
+- Recursively verified 49 installed native files. The Electron application,
+  backend, OpenMP runtime, Electron/Chromium libraries, and top-level Vulkan
+  loader are ARM64. Declared compatibility boundaries are the generated x86
+  uninstaller, exact-path x86 `resources\elevate.exe`, and ExifTool's x64
+  runtime. Sharp is build-time-only and is not installed.
+- Exercised launch, fixed-input selection, cancellation/recovery, successful
+  4x inference on the native Qualcomm Vulkan ICD, and output opening.
+- Proved a fresh output was created while connectivity remained unavailable,
+  then restored and reconfirmed networking. One explicit NetworkProfile
+  disconnect event and independent connectivity checks corroborate the run.
+- Preserved earlier unsuccessful evidence attempts and left uninstall untested
+  by explicit project-owner decision.
 
 Exit criteria:
 
-- The complete Arm64 app passes the agreed Snapdragon smoke journey.
+- Met: the installed ARM64 app passed architecture closure and the agreed
+  Snapdragon GUI/offline smoke journey. See
+  `docs/upshift64/step11-evidence.md`.
 
 ### Step 12: Finalize the Reusable Skill
 
-Approval required for the public skill interface and contents.
+**Status: complete.**
 
-- Package the proven audit, build, CI, architecture verification, packaging,
-  device validation, and evidence workflow as one production-quality Copilot
-  skill.
-- Compose with EasyWoS, WinAppCli, `win-dev-skills`, and `winml-cli` rather than
-  duplicating them.
-- Include approval gates, rollback guidance, failure handling, and provenance
-  capture.
+- Packaged audit, build, CI, dependency closure, Electron packaging,
+  installed-tree comparison, physical-device validation, and evidence
+  publication as one self-contained skill.
+- Added a portable JSON project contract and schema for immutable repositories,
+  target/compatibility architecture, build environment, native-file policy,
+  fixed validation inputs, provider policy, privacy mode, and optional tools.
+- Generalized the active audit into technology-neutral categories for build
+  systems, ABI, processor code, accelerators, native frameworks/codecs,
+  Windows integration, runtimes, closure, packaging, and device evidence.
+  Moved NCNN/Vulkan/libwebp/OpenMP/Electron/Sharp/ExifTool commands and hashes
+  into a separately labeled Upscayl case-study reference.
+- Added both a generic project template and an Upscayl-specific example so
+  adopters can distinguish required schema shape from historical values.
+- Added a machine-readable evidence schema plus a dependency-free PowerShell
+  manifest generator that records relative paths, bytes, SHA256, privacy
+  findings, image-review state, phase, and status.
+- Added a configuration validator, phase-handoff template, portable provenance
+  template, explicit phase-state model, rollback rules, and failure handling.
+- Added positive and negative fixtures proving valid configuration/private
+  manifests, invalid-configuration rejection, public manifests, and public
+  privacy blocking.
+- Wired the auditor, builder, and device tester to the portable configuration,
+  handoff, and evidence contracts.
+- Documented composition boundaries for EasyWoS, WinAppCli,
+  `win-dev-skills`, and `winml-cli` rather than duplicating their behavior.
+- Added `docs/upshift64/workflow-guide.md` as the single review hub.
 
 Exit criteria:
 
-- A new repository can reuse the skill without relying on undocumented session
-  knowledge.
+- Met: a new repository can copy the skill directory, replace and validate the
+  example configuration, select a phase agent, and produce schema-valid
+  evidence without relying on undocumented session knowledge.
 
 ### Step 13: Prepare Upstream Draft Pull Requests
 
@@ -404,7 +440,7 @@ Approval required to select any item.
 
 ## Current Position
 
-- Steps 1 through 9 are complete to their documented evidence boundaries.
+- Steps 1 through 12 are complete to their documented evidence boundaries.
 - Step 10 passed native Arm64 CI for the unpacked application,
   architecture-labelled ZIP, and NSIS installer.
 - The backend branch contains four approved CI commits ending at
@@ -412,12 +448,13 @@ Approval required to select any item.
 - A native ARM64 backend plus its signed ARM64 OpenMP runtime exists and has
   passed CI architecture/dependency closure and physical offline Adreno Vulkan
   inference.
-- Tier 1 and Step 10 are complete to their documented boundaries. No installed
-  GUI test, updater validation, release publication, or complete application
-  claim exists.
+- Tier 1, Step 10, and Step 11 are complete to their documented boundaries.
+  The installed Electron application passed architecture closure, GUI
+  operation, cancellation, native Qualcomm inference, output opening, and
+  offline operation on physical Snapdragon X hardware.
 - Step 10's packaging decisions and NSIS slice were approved, committed,
-  pushed, and proven in CI. Release publication and device installation remain
-  separately gated.
+  pushed, and proven in CI. Signing, updater validation, release publication,
+  and uninstall remain separately gated or untested.
 
 ## Plan Maintenance
 

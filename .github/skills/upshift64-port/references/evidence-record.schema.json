@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:upshift64:evidence-record:1",
+  "title": "Upshift64 evidence record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedUtc",
+    "phase",
+    "status",
+    "publicationMode",
+    "privacy",
+    "files"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "generatedUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "not-started",
+        "approved",
+        "running",
+        "blocked",
+        "partial",
+        "passed",
+        "published"
+      ]
+    },
+    "publicationMode": {
+      "enum": ["private", "public"]
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "potentialFindingCount",
+        "unresolvedFindingCount",
+        "imageCount",
+        "imagesReviewed",
+        "nonTextFileCount",
+        "nonTextFilesReviewed"
+      ],
+      "properties": {
+        "potentialFindingCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unresolvedFindingCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "imageCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "imagesReviewed": {
+          "type": "boolean"
+        },
+        "nonTextFileCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nonTextFilesReviewed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "privacyFindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "line",
+          "category",
+          "matchSha256",
+          "allowlisted"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "One-based content line, or zero when the match is in the relative filename."
+          },
+          "category": {
+            "type": "string"
+          },
+          "matchSha256": {
+            "type": "string",
+            "pattern": "^[0-9A-F]{64}$"
+          },
+          "allowlisted": {
+            "type": "boolean"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "bytes", "sha256"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9A-F]{64}$"
+          }
+        }
+      }
+    }
+  }
+}

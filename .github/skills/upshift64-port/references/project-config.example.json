@@ -1,0 +1,78 @@
+{
+  "$schema": "./project-config.schema.json",
+  "schemaVersion": 1,
+  "project": {
+    "id": "example-windows-arm64-port",
+    "displayName": "Example Windows ARM64 Port"
+  },
+  "repositories": {
+    "application": {
+      "url": "https://github.com/example/application.git",
+      "branch": "main",
+      "revision": "0000000000000000000000000000000000000000"
+    },
+    "backend": {
+      "url": "https://github.com/example/backend.git",
+      "branch": "main",
+      "revision": "0000000000000000000000000000000000000000",
+      "submodules": []
+    }
+  },
+  "target": {
+    "os": "windows",
+    "architecture": "arm64",
+    "compatibilityArchitectures": []
+  },
+  "build": {
+    "runner": "windows-11-arm",
+    "configuration": "Release",
+    "toolchain": "<compiler-and-sdk>"
+  },
+  "artifacts": {
+    "evidenceRoot": "<absolute-evidence-root>",
+    "stagingRoot": "<absolute-staging-root>",
+    "nativeFilePolicy": {
+      "requiredArchitecture": "arm64",
+      "exceptions": []
+    }
+  },
+  "validation": {
+    "fixture": {
+      "path": "<fixed-test-input>",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "model": {
+      "id": "<model-or-workload-id>",
+      "files": []
+    },
+    "providerPolicy": {
+      "api": "<vulkan-directml-winml-cuda-cpu-or-other>",
+      "allowedIdentifiers": [],
+      "deniedIdentifiers": []
+    },
+    "offlineRequired": true,
+    "expectedOutput": {
+      "format": "<output-format>",
+      "width": 1,
+      "height": 1
+    }
+  },
+  "privacy": {
+    "publicationMode": "private",
+    "requireImageReview": true
+  },
+  "tools": {
+    "portabilityScanner": {
+      "required": false
+    },
+    "guiAutomation": {
+      "required": false
+    },
+    "windowsDevelopmentSkills": {
+      "required": false
+    },
+    "acceleratorCli": {
+      "required": false
+    }
+  }
+}

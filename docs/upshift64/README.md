@@ -5,6 +5,9 @@ NCNN/Vulkan backend, with reusable agents and skills for future application
 ports. Humans approve and review every gated action; agents generate all
 repository changes.
 
+For one-page navigation across the plan, reusable skill, and all custom agents,
+start with [`workflow-guide.md`](workflow-guide.md).
+
 ## Current status
 
 | Step | Outcome |
@@ -17,7 +20,9 @@ repository changes.
 | 7 | Native executable and Microsoft OpenMP runtime dependency closure verified |
 | 8 | Native backend completed offline Vulkan inference on physical Snapdragon X-class hardware |
 | 9 | Tier 1 evidence and reusable device-validation workflow published locally |
-| 10 | Next: package the Electron application for Windows ARM64 |
+| 10 | Electron ARM64 package, ZIP, and NSIS installer built and closure-verified in CI |
+| 11 | Installed application passed architecture closure, GUI, cancellation, output opening, and offline inference on Snapdragon X |
+| 12 | Reusable skill finalized with portable config/evidence schemas, handoff templates, validation scripts, and positive/negative fixtures |
 
 ## Proven ARM64 payload
 
@@ -106,25 +111,32 @@ definitions were intentionally left unchanged.
 ## Reusable outputs
 
 - `.github/skills/upshift64-port/SKILL.md`: approval-gated audit, build,
-  closure, and evidence procedure.
+  closure, packaging, device, and evidence procedure with portable schemas,
+  templates, validation scripts, self-tests, and an explicitly separated
+  Upscayl case study.
 - `.github/agents/upshift64-auditor.agent.md`: read-only Windows ARM64 audit
   specialist.
 - `.github/agents/upshift64-builder.agent.md`: failure-driven native ARM64 CI
   and closure specialist.
 - `.github/agents/upshift64-device-tester.agent.md`: approval-gated physical
-  Windows-on-Arm Vulkan execution and evidence specialist.
+  Windows-on-Arm backend and installed-application validation specialist.
 - `docs/upshift64/arm64-port-audit.md`: detailed blocker and architecture
   analysis.
 - `docs/upshift64/tier1-evidence.md`: physical Snapdragon X-class validation
   report and limitations.
 - `docs/upshift64/provenance/`: owner approvals, generated changes, CI
   evidence, and limitations.
+- `docs/upshift64/workflow-guide.md`: one-page plan, skill, agent, and handoff
+  navigation.
 
 ## What is not yet proven
 
-- Electron ARM64 packaging, installation, launch, or GUI behavior;
-- application-level backend selection and resource staging;
-- native Node module and helper executable closure;
-- updater and architecture-specific release naming.
+- application signing, updater behavior, and release publication;
+- uninstall behavior, which the project owner explicitly left untested;
+- performance or energy improvements against a controlled baseline;
+- operation on a second Snapdragon or NVIDIA RTX device.
 
-Tier 1 proves the native backend, not the complete Electron application.
+Tier 1 proves the native backend. Step 11 extends that evidence to the installed
+Electron application on physical Snapdragon X hardware. See
+[`step11-evidence.md`](step11-evidence.md) for the validated scope and
+limitations.
