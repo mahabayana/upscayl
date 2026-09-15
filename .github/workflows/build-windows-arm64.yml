@@ -1,0 +1,91 @@
+name: Build for Windows ARM64
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-arm64:
+    runs-on: windows-11-arm
+    timeout-minutes: 45
+    env:
+      BACKEND_ARTIFACT_NAME: upscayl-bin-windows-arm64-diagnostics-34900090037-1
+      BACKEND_RUN_ID: "34900090037"
+      BACKEND_REPOSITORY: mahabayana/upscayl-ncnn
+      UPSHIFT64_ARM64_PAYLOAD_DIR: .upshift64/staging/win-arm64/bin
+
+    steps:
+      - name: Check out application
+        uses: actions/checkout@v4
+
+      - name: Set up pinned Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.20.5
+          cache: npm
+
+      - name: Require cross-repository artifact access
+        shell: pwsh
+        env:
+          BACKEND_TOKEN: ${{ secrets.UPSHIFT64_BACKEND_TOKEN }}
+        run: |
+          if (-not $env:BACKEND_TOKEN) {
+            throw "UPSHIFT64_BACKEND_TOKEN must grant Actions read access to $env:BACKEND_REPOSITORY."
+          }
+
+      - name: Download verified ARM64 backend closure
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.BACKEND_ARTIFACT_NAME }}
+          path: .upshift64/input/backend
+          repository: ${{ env.BACKEND_REPOSITORY }}
+          run-id: ${{ env.BACKEND_RUN_ID }}
+          github-token: ${{ secrets.UPSHIFT64_BACKEND_TOKEN }}
+
+      - name: Verify and stage native payload
+        shell: pwsh
+        run: |
+          ./scripts/stage-windows-arm64-payload.ps1 `
+            -PayloadRoot .upshift64/input/backend `
+            -StagingRoot $env:UPSHIFT64_ARM64_PAYLOAD_DIR
+
+      - name: Install locked dependencies
+        shell: pwsh
+        env:
+          SHARP_IGNORE_GLOBAL_LIBVIPS: "1"
+        run: npm ci --include=optional
+
+      - name: Verify native ARM64 Sharp
+        shell: pwsh
+        run: node scripts/verify-sharp-arm64.js
+
+      - name: Build unpacked application and ZIP
+        shell: pwsh
+        run: npm run dist:win-arm64
+
+      - name: Extract application ASAR for closure inspection
+        shell: pwsh
+        run: |
+          node node_modules/@electron/asar/bin/asar.js extract `
+            dist/win-arm64-unpacked/resources/app.asar `
+            .upshift64/evidence/app-asar
+
+      - name: Verify complete ARM64 package closure
+        shell: pwsh
+        run: |
+          ./scripts/verify-windows-arm64-package.ps1 `
+            -PackageRoot dist/win-arm64-unpacked `
+            -AsarExtractRoot .upshift64/evidence/app-asar
+
+      - name: Upload diagnostic package and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: upscayl-windows-arm64-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            dist/*-win-arm64.zip
+            dist/win-arm64-unpacked/**
+            .upshift64/evidence/**
