@@ -74,7 +74,7 @@ if ($AsarExtractRoot) {
   }
 }
 
-$forbiddenNames = @("vcomp140d.dll", "vulkan-1.dll")
+$forbiddenNames = @("vcomp140d.dll")
 $results = [System.Collections.Generic.List[object]]::new()
 $failures = [System.Collections.Generic.List[string]]::new()
 
@@ -121,9 +121,12 @@ foreach ($scanRoot in $scanRoots) {
       $failures.Add("$displayPath is not a valid PE file: $reason")
     }
 
-    if ($file.Name -iin $forbiddenNames) {
+    $isElectronVulkanLoader = $scanRoot.label -eq "package" -and
+      $relativePath -eq "vulkan-1.dll"
+    if ($file.Name -iin $forbiddenNames -or
+      ($file.Name -ieq "vulkan-1.dll" -and -not $isElectronVulkanLoader)) {
       $policy = "reject"
-      $reason = "Forbidden app-local runtime"
+      $reason = "Forbidden backend-local runtime"
       $failures.Add("$displayPath is forbidden.")
     }
 

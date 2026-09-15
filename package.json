@@ -58,7 +58,7 @@
     "dist:mas": "npm run enable-store && tsc && npm run build && electron-builder --mac mas --universal -c mas.json && npm run disable-store",
     "dist:mas-dev": "npm run enable-store && tsc && npm run build && electron-builder --mac mas-dev --universal -c mas-dev.json && npm run disable-store",
     "dist:win": "tsc && npm run build && electron-builder --win",
-    "dist:win-arm64": "tsc && npm run build && cross-env DEBUG=* electron-builder --config electron-builder.arm64.cjs --win --arm64",
+    "dist:win-arm64": "tsc && npm run build && cross-env DEBUG=* electron-builder --config electron-builder.arm64.cjs --win --arm64 --publish never",
     "dist:linux": "tsc && npm run build && electron-builder --linux",
     "publish-app": "tsc && npm run build && electron-builder -wlm --publish always",
     "publish-linux-app": "tsc && npm run build && electron-builder -l --publish always",

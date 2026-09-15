@@ -110,3 +110,22 @@ The generated scripts:
   arm64`. The official `actions/node-versions` manifest lists
   `node-22.23.2-win32-arm64.7z`; this Node release also satisfies Next,
   electron-builder, and Sharp `0.34.2` engine constraints.
+
+## CI attempt 2
+
+- **Application commit:** `5ce63c289f5ff1c7b3221d5567874ca16dab3f5e`
+- **Workflow run:** <https://github.com/mahabayana/upscayl/actions/runs/34930954950>
+- **Result:** dependency installation, ARM64 Sharp verification, renderer
+  build, Electron packaging, and ZIP creation completed. The build then failed
+  because electron-builder detected CI and attempted to initialize the
+  configured GitHub publisher without `GH_TOKEN`.
+- **Observed error:** `GitHub Personal Access Token is not set, neither
+  programmatically, nor using env "GH_TOKEN"`.
+- **Correction:** Pass `--publish never` in the diagnostic ARM64 script. Step
+  10 is intentionally a diagnostic artifact build and must never publish a
+  release.
+- **Package observation:** Electron itself places an ARM64 `vulkan-1.dll`
+  beside `Upscayl.exe` for its Chromium/SwiftShader runtime. The closure rule
+  now permits only that top-level framework file while continuing to reject
+  any backend-local or ASAR-contained Vulkan loader. The backend still resolves
+  the physical system/driver loader and does not stage one in `resources/bin`.
