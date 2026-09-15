@@ -2,6 +2,11 @@ name: Build for Windows ARM64
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - hackathon/upshift64-win-arm64
+    paths:
+      - .github/workflows/build-windows-arm64.yml
 
 permissions:
   contents: read
