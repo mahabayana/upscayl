@@ -179,3 +179,19 @@ yet prove NSIS installation or physical GUI behavior.
   though it installs only ARM64 application files.
 - Continue to defer actual installation, uninstall behavior, launch, and GUI
   validation to physical-device Step 11.
+
+### Native CI attempt 4
+
+- **Run:** `34933846347`
+- **Result:** failed during recursive package closure after the NSIS installer
+  had been built and inspected.
+- `upscayl-2.15.0-win-arm64.exe` was generated successfully.
+- The installer inspector classified its PE bootstrap as x86 under the approved
+  Windows compatibility-bootstrap policy.
+- ASAR extraction succeeded.
+- Package closure rejected one native file, but the workflow neither printed
+  nor uploaded the generated failure report before stopping. The rejected path
+  therefore cannot be identified reliably from this run.
+- The next diagnostic run prints the complete closure report in the job log and
+  uploads `.upshift64/evidence` even when closure fails. No architecture policy
+  is relaxed without that exact evidence.

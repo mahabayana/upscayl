@@ -86,9 +86,25 @@ jobs:
       - name: Verify complete ARM64 package closure
         shell: pwsh
         run: |
-          ./scripts/verify-windows-arm64-package.ps1 `
-            -PackageRoot dist/win-arm64-unpacked `
-            -AsarExtractRoot .upshift64/evidence/app-asar
+          try {
+            ./scripts/verify-windows-arm64-package.ps1 `
+              -PackageRoot dist/win-arm64-unpacked `
+              -AsarExtractRoot .upshift64/evidence/app-asar
+          }
+          finally {
+            if (Test-Path .upshift64/evidence/package-closure/package-closure.md) {
+              Get-Content .upshift64/evidence/package-closure/package-closure.md
+            }
+          }
+
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upscayl-windows-arm64-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: .upshift64/evidence/**
 
       - name: Upload diagnostic package and evidence
         uses: actions/upload-artifact@v4
